@@ -9,8 +9,11 @@
         <script src="cordova.js"></script>
         <script src="kendo/js/jquery.min.js"></script>
         <script src="kendo/js/kendo.mobile.min.js"></script>
+        <script src="kendo/js/everlive.all.min.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true"></script>
 
+        <script src="scripts/data.js"></script>
+        <script src="scripts/addlocation.js"></script>
         <script src="scripts/location.js"></script>
         <script src="scripts/app.js"></script>
 
@@ -19,10 +22,11 @@
         <!--Home-->
         <div id="tabstrip-home" 
              data-role="view"  
-             data-title="What is Here?">
+             data-title="What is Here?"
+             data-model="app.addLocationViewModel">
 
-            <textarea></textarea>
-            <a data-role="button">Save</a>
+            <textarea id="locationDescription"></textarea>
+            <a class="save" data-role="button" data-click="app.addLocationViewModel.addLocation">Save</a>
         </div>
 
         <!--Location-->

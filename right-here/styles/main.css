@@ -11,7 +11,7 @@ body, html {
     box-sizing: border-box;
 }
 
-#tabstrip-home .km-button {
+#tabstrip-home .save {
     width: 98%;
     margin: 1%;
     box-sizing: border-box;

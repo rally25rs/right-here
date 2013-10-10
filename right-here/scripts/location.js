@@ -20,7 +20,12 @@
                 function (position) {
                     position = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                     map.panTo(position);
-                    that._putMarker(position);
+                    
+                    app.data.locations.fetch(function () {
+                        $.each(app.data.locations.view(), function (index, location) {
+                            that._putMarker(map, location);
+                        });
+                    });
 
                     that._isLoading = false;
                     that.hideLoading();
@@ -43,26 +48,6 @@
             );
         },
 
-        onSearchAddress: function () {
-            var that = this;
-
-            geocoder.geocode(
-                {
-                    'address': that.get("address")
-                },
-                function (results, status) {
-                    if (status !== google.maps.GeocoderStatus.OK) {
-                        navigator.notification.alert("Unable to find address.",
-                            function () { }, "Search failed", 'OK');
-
-                        return;
-                    }
-
-                    map.panTo(results[0].geometry.location);
-                    that._putMarker(results[0].geometry.location);
-                });
-        },
-
         showLoading: function () {
             if (this._isLoading) {
                 app.application.showLoading();
@@ -73,33 +58,36 @@
             app.application.hideLoading();
         },
 
-        _putMarker: function (position) {
-            var that = this;
+        _putMarker: function (map, location) {
+            var mapLatLng = new google.maps.LatLng(location.Coordinates.latitude, location.Coordinates.longitude)
 
-            if (that._lastMarker !== null && that._lastMarker !== undefined) {
-                that._lastMarker.setMap(null);
+            if (this._lastMarker !== null && this._lastMarker !== undefined) {
+                this._lastMarker.setMap(null);
             }
 
-            that._lastMarker = new google.maps.Marker({
+            this._lastMarker = new google.maps.Marker({
                 map: map,
-                position: position
+                position: mapLatLng,
+                title: location.Description
             });
         }
     });
 
     app.locationService = {
+        map: function () { return map; },
+        
         initLocation: function () {
             var mapOptions = {
-                    zoom: 15,
-                    mapTypeId: google.maps.MapTypeId.ROADMAP,
-                    zoomControl: true,
-                    zoomControlOptions: {
-                        position: google.maps.ControlPosition.LEFT_BOTTOM
-                    },
-    
-                    mapTypeControl: false,
-                    streetViewControl: false
-                };
+                zoom: 15,
+                mapTypeId: google.maps.MapTypeId.ROADMAP,
+                zoomControl: true,
+                zoomControlOptions: {
+                    position: google.maps.ControlPosition.LEFT_BOTTOM
+                },
+
+                mapTypeControl: false,
+                streetViewControl: false
+            };
 
             map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);            
             geocoder = new google.maps.Geocoder();
@@ -110,6 +98,9 @@
             //show loading mask in case the location is not loaded yet 
             //and the user returns to the same tab
             app.locationService.viewModel.showLoading();
+            
+            // reset location
+            app.locationService.viewModel.onNavigateHome();
             
             //resize the map in case the orientation has been changed while showing other tab
             google.maps.event.trigger(map, "resize");
