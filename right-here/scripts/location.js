@@ -5,7 +5,7 @@
         app = global.app = global.app || {};
 
     LocationViewModel = kendo.data.ObservableObject.extend({
-        _lastMarker: null,
+        _lastMarkers: [],
         _isLoading: false,
         address: "",
 
@@ -20,6 +20,12 @@
                 function (position) {
                     position = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                     map.panTo(position);
+                    
+                    for (var i = 0; i < that._lastMarkers.length; i++) {
+                		that._lastMarkers[i].setMap(null);
+        		    }
+                    that._lastMarkers = [];
+
                     
                     app.data.locations.fetch(function () {
                         $.each(app.data.locations.view(), function (index, location) {
@@ -60,16 +66,11 @@
 
         _putMarker: function (map, location) {
             var mapLatLng = new google.maps.LatLng(location.Coordinates.latitude, location.Coordinates.longitude)
-
-            if (this._lastMarker !== null && this._lastMarker !== undefined) {
-                this._lastMarker.setMap(null);
-            }
-
-            this._lastMarker = new google.maps.Marker({
+            this._lastMarkers.push(new google.maps.Marker({
                 map: map,
                 position: mapLatLng,
                 title: location.Description
-            });
+            }));
         }
     });
 
